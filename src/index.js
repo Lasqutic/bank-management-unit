@@ -15,7 +15,7 @@ const personIdThree = bank.register({ // Error It is impossible to add a client 
     name: 'Ben Black',
     balance: -100,
 });
-const personIdFour = bank.register({ // Error It is impossible to add a client with a negative balance
+const personIdFour = bank.register({ 
     name: 'John Black',
     balance: 100,
 });
