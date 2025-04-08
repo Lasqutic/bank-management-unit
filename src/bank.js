@@ -6,67 +6,12 @@ class Bank extends EventEmitter {
         super();
         this.clients = new Map();
 
-        this.on('add', (id, balance) => {
-            try {
-                const client = this.#getClientById(id);
-                const updatedBalance = client.balance + balance;
-                this.#checkLimit(client, balance, updatedBalance);
-                client.balance = updatedBalance;
-            } catch (err) {
-                this.emit('error', err);
-            }
-        });
-
-        this.on('get', (id, callback) => {
-            try {
-                const client = this.#getClientById(id);
-                callback(client.balance);
-            } catch (err) {
-                this.emit('error', err);
-            }
-        });
-
-        this.on('withdraw', (id, amount) => {
-            try {
-                const client = this.#getClientById(id);
-                const updatedBalance = client.balance - amount;
-                this.#checkLimit(client, amount, updatedBalance);
-                client.balance = updatedBalance;
-            } catch (err) {
-                this.emit('error', err);
-            }
-        });
-
-        this.on('send', (senderId, recipientId, amount) => {
-            try {
-                const sender = this.#getClientById(senderId);
-                const recipient = this.#getClientById(recipientId);
-
-                const senderUpdatedBalance = sender.balance - amount;
-                const recipientUpdatedBalance = recipient.balance + amount;
-
-                this.#checkLimit(sender, amount, senderUpdatedBalance);
-                this.#checkLimit(recipient, amount, recipientUpdatedBalance);
-
-                sender.balance = senderUpdatedBalance;
-                recipient.balance = recipientUpdatedBalance;
-            } catch (err) {
-                this.emit('error', err);
-            }
-        });
-
-        this.on('changeLimit', (id, newLimit) => {
-            try {
-                const client = this.#getClientById(id);
-                client.limit = newLimit;
-            } catch (err) {
-                this.emit('error', err);
-            }
-        });
-
-        this.on('error', (err) => {
-            console.error('Error: ', err.message);
-        });
+        this.#add();
+        this.#get();
+        this.#withdraw();
+        this.#send();
+        this.#changeLimit();
+        this.#onError();
     }
 
     register({ name, balance, limit = () => true }) {
@@ -89,6 +34,36 @@ class Bank extends EventEmitter {
         }
     }
 
+    #onError() {
+        this.on('error', (err) => {
+            console.error('Error: ', err.message);
+        });
+    }
+
+
+    #add() {
+        this.on('add', (id, balance) => {
+            try {
+                const client = this.#getClientById(id);
+                const updatedBalance = client.balance + balance;
+                this.#checkLimit(client, balance, updatedBalance);
+                client.balance = updatedBalance;
+            } catch (err) {
+                this.emit('error', err);
+            }
+        });
+
+    }
+    #get() {
+        this.on('get', (id, callback) => {
+            try {
+                const client = this.#getClientById(id);
+                callback(client.balance);
+            } catch (err) {
+                this.emit('error', err);
+            }
+        });
+    }
     #getClientById(id) {
         const client = this.clients.get(id);
         if (!client) {
@@ -103,6 +78,48 @@ class Bank extends EventEmitter {
         if (!client.limit(amount, client.balance, updatedBalance)) {
             throw new Error('Limit check failed');
         }
+    }
+    #changeLimit() {
+        this.on('changeLimit', (id, newLimit) => {
+            try {
+                const client = this.#getClientById(id);
+                client.limit = newLimit;
+            } catch (err) {
+                this.emit('error', err);
+            }
+        });
+    }
+
+    #withdraw() {
+        this.on('withdraw', (id, amount) => {
+            try {
+                const client = this.#getClientById(id);
+                const updatedBalance = client.balance - amount;
+                this.#checkLimit(client, amount, updatedBalance);
+                client.balance = updatedBalance;
+            } catch (err) {
+                this.emit('error', err);
+            }
+        });
+    }
+    #send() {
+        this.on('send', (senderId, recipientId, amount) => {
+            try {
+                const sender = this.#getClientById(senderId);
+                const recipient = this.#getClientById(recipientId);
+
+                const senderUpdatedBalance = sender.balance - amount;
+                const recipientUpdatedBalance = recipient.balance + amount;
+
+                this.#checkLimit(sender, amount, senderUpdatedBalance);
+                this.#checkLimit(recipient, amount, recipientUpdatedBalance);
+
+                sender.balance = senderUpdatedBalance;
+                recipient.balance = recipientUpdatedBalance;
+            } catch (err) {
+                this.emit('error', err);
+            }
+        });
     }
 }
 
