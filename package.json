@@ -5,7 +5,8 @@
   "main": "./src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node ./src/index.js"
+    "start": "node ./src/index.js",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Lasqutic/bank-management-unit/issues"
   },
-  "homepage": "https://github.com/Lasqutic/bank-management-unit#readme"
+  "homepage": "https://github.com/Lasqutic/bank-management-unit#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
 }

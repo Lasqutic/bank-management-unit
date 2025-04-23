@@ -14,20 +14,22 @@ class Bank extends EventEmitter {
         this.#onError();
     }
 
-    register({ name, balance, limit = () => true }) {
+    register({ name, balance, limit }) {
         try {
             if (balance <= 0) throw new Error('It is impossible to add a client with a negative balance');
-
+    
             for (const client of this.clients.values()) {
                 if (client.name === name) {
                     throw new Error(`Client with name "${name}" already exists`);
                 }
             }
-
+    
+            const safeLimit = typeof limit === 'function' ? limit : () => true;
+    
             const id = crypto.randomUUID();
-            this.clients.set(id, { name, balance, limit });
+            this.clients.set(id, { name, balance, limit: safeLimit });
             return id;
-
+    
         } catch (err) {
             this.emit('error', err);
             return null;
@@ -36,7 +38,7 @@ class Bank extends EventEmitter {
 
     #onError() {
         this.on('error', (err) => {
-            console.error('Error: ', err.message);
+            throw new Error(err.message)
         });
     }
 
