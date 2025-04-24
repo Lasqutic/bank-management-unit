@@ -1,9 +1,28 @@
-import Bank from './bank.js';
+import { jest } from '@jest/globals';
+
+jest.unstable_mockModule('crypto', () => ({
+    default: {
+        randomUUID: jest.fn(() => 'mocked-uuid'),
+    }
+}));
+
 describe('Bank', () => {
+    let Bank;
     let bank;
+
+    beforeAll(async () => {
+        const mod = await import('./bank.js');
+        Bank = mod.default;
+    });
 
     beforeEach(() => {
         bank = new Bank();
+    });
+
+    test('should use mocked uuid when registering client', () => {
+        const id = bank.register({ name: 'Test User', balance: 100 });
+        expect(id).toBe('mocked-uuid');
+        expect(bank.clients.has('mocked-uuid')).toBe(true);
     });
 
     test('should pass with valid client', () => {
@@ -18,14 +37,14 @@ describe('Bank', () => {
         }).toThrow('It is impossible to add a client with a negative balance');
     });
 
-    test('should throw when создаються два клиента с одинаковыми именами', () => {
+    test('should throw when two clients with the same name are created', () => {
         expect(() => {
             bank.register({ name: 'Oliver White', balance: 100 });
             bank.register({ name: 'Oliver White', balance: 10 });
         }).toThrow('"Oliver White" already exists');
     });
 
-    test('should pass при попалнении баланса', () => {
+    test('should pass when the balance is hit', () => {
 
         const id = bank.register({ name: 'Oliver White', balance: 100 });
         expect(bank.clients.get(id).balance).toBe(100);
@@ -36,14 +55,14 @@ describe('Bank', () => {
 
     });
 
-    test('There should throw when trying to add a negative amount', () => {
+    test('should throw when trying to add a negative amount', () => {
         expect(() => {
             const id = bank.register({ name: 'Oliver White', balance: 100 });
             bank.emit('add', id, -100);
         }).toThrow("Amount = '-100' must be positive");
     });
 
-    test('There should throw when you try to withdraw more than you have in your account', () => {
+    test('should throw when you try to withdraw more than you have in your account', () => {
         expect(() => {
             const id = bank.register({ name: 'Oliver White', balance: 100 });
             bank.emit('withdraw', id, 200);
