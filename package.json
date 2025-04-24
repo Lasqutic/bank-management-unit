@@ -1,0 +1,23 @@
+{
+  "name": "bank-management-unit",
+  "version": "1.0.0",
+  "description": "A simple banking system simulator using an event-driven architecture with Node.js and ES Modules.",
+  "main": "./src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lasqutic/bank-management-unit.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/Lasqutic/bank-management-unit/issues"
+  },
+  "homepage": "https://github.com/Lasqutic/bank-management-unit#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
