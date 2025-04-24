@@ -38,7 +38,7 @@ class Bank extends EventEmitter {
 
     #onError() {
         this.on('error', (err) => {
-            throw new Error(err.message)
+            throw err;
         });
     }
 
